@@ -11,3 +11,10 @@ class Mensagem(MensagemBase):
 
     class Config:
         from_attributes = True
+
+class MensagemOut(BaseModel):
+    id: int
+    conteudo: str
+
+    class Config:
+        from_attributes = True

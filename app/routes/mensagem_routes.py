@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.mensagem_schema import Mensagem, MensagemCreate
+from app.schemas.mensagem_schema import Mensagem, MensagemCreate, MensagemOut
 from app.controllers import mensagem_controller
 from app.database.database import SessionLocal
 
@@ -23,15 +23,19 @@ def read_mensagens(db: Session = Depends(get_db)):
 
 @router.get("/mensagens/{mensagem_id}", response_model=Mensagem)
 def read_mensagem(mensagem_id: int, db: Session = Depends(get_db)):
-    mensagem = mensagem_controller.get_mensagem(db, mensagem_id)
-    if mensagem is None:
-        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
-    return mensagem
+    mensagem_controller.http_404_error(db, mensagem_id)
+    return mensagem_controller.get_mensagem(db, mensagem_id)
 
 @router.put("/mensagens/{mensagem_id}", response_model=Mensagem)
 def update_mensagem(mensagem_id: int, mensagem: MensagemCreate, db: Session = Depends(get_db)):
+    mensagem_controller.http_404_error(db, mensagem_id)
     return mensagem_controller.update_mensagem(db, mensagem_id, mensagem.conteudo)
 
 @router.delete("/mensagens/{mensagem_id}")
 def delete_mensagem(mensagem_id: int, db: Session = Depends(get_db)):
-    return mensagem_controller.delete_mensagem(db, mensagem_id)
+    mensagem = mensagem_controller.http_404_error(db, mensagem_id)   
+    mensagem_controller.delete_mensagem(db, mensagem_id)                                  
+    return {
+    "mensagem": MensagemOut.from_orm(mensagem),
+    "status": "message deleted successfully"
+    }
