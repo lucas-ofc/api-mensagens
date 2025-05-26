@@ -27,10 +27,9 @@ def create_mensagem(db: Session, mensagem: MensagemCreate):
 
 def update_mensagem(db: Session, mensagem_id: int, conteudo: str):
     db_mensagem = get_mensagem(db, mensagem_id)
-    if db_mensagem:
-        db_mensagem.conteudo = conteudo
-        db.commit()
-        db.refresh(db_mensagem)
+    db_mensagem.conteudo = conteudo
+    db.commit()
+    db.refresh(db_mensagem)
     return db_mensagem
 
 def delete_mensagem(db: Session, mensagem_id: int):
